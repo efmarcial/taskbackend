@@ -4,7 +4,19 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework import serializers
+from  .models import Profile, Service
 
+# Profile Serializer
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Profile
+        fields = ['id', 'user', 'user_type']
+        
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['id', 'name', 'description', 'duration']
     
 class UserLoginSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -18,10 +30,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only = True)
+    user_type = serializers.ChoiceField(choices=Profile.USER_TYPE_CHOICES)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'user_type']
+        extra_kwargs = {"password" : {'write_only' : True}}
         
     def create(self, validated_data):
         user = User(
